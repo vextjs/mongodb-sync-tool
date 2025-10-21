@@ -1,0 +1,40 @@
+{
+    "name": "mongodb-sync-tool",
+    "version": "2.0.0",
+    "description": "MongoDB 数据库同步工具 - 支持集合、数据库、实例级别同步，支持增量同步",
+    "main": "src/index.js",
+    "scripts": {
+        "sync": "node src/index.js",
+        "help": "node src/index.js --help",
+        "test": "node test/run-tests.js",
+        "test:collection": "node test/collection-sync.test.js",
+        "test:database": "node test/database-sync.test.js",
+        "test:incremental": "node test/incremental-sync.test.js",
+        "example:collection": "node examples/sync-single-collection.js",
+        "example:database": "node examples/sync-multiple-databases.js",
+        "example:instance": "node examples/sync-all-databases.js",
+        "example:incremental": "node examples/incremental-sync.js"
+    },
+    "keywords": [
+        "mongodb",
+        "sync",
+        "database",
+        "backup",
+        "incremental",
+        "migration",
+        "replication"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "mongodb": "^6.0.0",
+        "dotenv": "^16.0.0"
+    },
+    "devDependencies": {
+        "chai": "^4.3.10",
+        "mocha": "^10.2.0"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    }
+}
