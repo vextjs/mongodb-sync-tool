@@ -1,6 +1,6 @@
 {
     "name": "mongodb-sync-tool",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "description": "MongoDB 数据库同步工具 - 支持集合、数据库、实例级别同步，支持增量同步和 SSH 隧道",
     "main": "src/index.js",
     "scripts": {
