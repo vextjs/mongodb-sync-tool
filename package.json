@@ -1,7 +1,7 @@
 {
     "name": "mongodb-sync-tool",
-    "version": "2.0.0",
-    "description": "MongoDB 数据库同步工具 - 支持集合、数据库、实例级别同步，支持增量同步",
+    "version": "2.1.0",
+    "description": "MongoDB 数据库同步工具 - 支持集合、数据库、实例级别同步，支持增量同步和 SSH 隧道",
     "main": "src/index.js",
     "scripts": {
         "sync": "node src/index.js",
@@ -10,6 +10,7 @@
         "test:collection": "node test/collection-sync.test.js",
         "test:database": "node test/database-sync.test.js",
         "test:incremental": "node test/incremental-sync.test.js",
+        "test:ssh": "npx mocha test/ssh-tunnel.test.js",
         "example:collection": "node examples/sync-single-collection.js",
         "example:database": "node examples/sync-multiple-databases.js",
         "example:instance": "node examples/sync-all-databases.js",
@@ -22,13 +23,18 @@
         "backup",
         "incremental",
         "migration",
-        "replication"
+        "replication",
+        "ssh",
+        "tunnel"
     ],
     "author": "",
     "license": "MIT",
     "dependencies": {
+        "dotenv": "^16.0.0",
         "mongodb": "^6.0.0",
-        "dotenv": "^16.0.0"
+        "ssh2": "^1.17.0",
+        "ssh2-promise": "^1.0.3",
+        "tunnel-ssh": "^5.2.0"
     },
     "devDependencies": {
         "chai": "^4.3.10",

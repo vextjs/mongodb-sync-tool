@@ -1,6 +1,6 @@
-# MongoDB 数据库同步工具 v2.0
+# MongoDB 数据库同步工具 v2.1
 
-一个功能强大、灵活可配置的 MongoDB 数据库同步工具，支持集合、数据库、实例级别的同步，以及增量同步功能。
+一个功能强大、灵活可配置的 MongoDB 数据库同步工具，支持集合、数据库、实例级别的同步，支持增量同步和 SSH 隧道连接。
 
 ## ✨ 功能特性
 
@@ -8,6 +8,7 @@
 - ✅ **多级别同步**：支持集合、数据库、实例（全部数据库）级别同步
 - ✅ **增量同步**：基于时间戳字段的增量同步，避免全量同步开销
 - ✅ **过滤同步**：支持自定义过滤条件，只同步符合条件的数据
+- ✅ **SSH 隧道**：支持通过 SSH 隧道安全连接 MongoDB（v2.1+）🆕
 - ✅ **索引同步**：自动同步索引结构
 - ✅ **批量优化**：批量插入提升性能
 - ✅ **模拟运行**：dry-run 模式，不实际写入数据
@@ -20,6 +21,7 @@
 
 ### 配置灵活
 - ✅ **多种配置方式**：支持环境变量、命令行参数、代码配置
+- ✅ **多种认证方式**：支持密码、私钥等多种 SSH 认证方式（v2.1+）🆕
 - ✅ **排除选项**：可排除特定集合和数据库
 - ✅ **参数校验**：完整的输入参数校验
 - ✅ **模块化架构**：代码结构清晰，易于扩展
@@ -129,6 +131,120 @@ npm run sync -- --db myapp --incremental --timestamp-field modifiedAt
 
 ### 高级功能
 
+#### 使用 SSH 隧道连接
+
+从 v2.1 版本开始，支持通过 SSH 隧道连接远程 MongoDB，适用于只能通过跳板机访问的场景。
+
+**方式 1: 使用密码认证**
+
+```javascript
+const config = {
+    remote: {
+        host: "internal-mongodb.example.com",  // MongoDB 内网地址
+        port: "27017",
+        username: "admin",
+        password: "mongo-password",
+        database: "myapp",
+        
+        // SSH 隧道配置
+        ssh: {
+            host: "jumpserver.example.com",  // SSH 跳板机
+            port: 22,
+            username: "deployer",
+            password: "ssh-password"
+        }
+    },
+    local: { host: "localhost", port: "27017", database: "myapp_dev" },
+    mode: "collection",
+    collections: ["users"]
+};
+```
+
+**方式 2: 使用私钥认证**
+
+```javascript
+const config = {
+    remote: {
+        host: "internal-mongodb.example.com",
+        port: "27017",
+        database: "myapp",
+        
+        ssh: {
+            host: "jumpserver.example.com",
+            port: 22,
+            username: "deployer",
+            privateKey: "/home/user/.ssh/id_rsa",  // 私钥路径
+            passphrase: "key-password"              // 可选
+        }
+    },
+    // ...其他配置
+};
+```
+
+**方式 3: 使用私钥内容**
+
+```javascript
+const config = {
+    remote: {
+        // ...
+        ssh: {
+            host: "jumpserver.example.com",
+            username: "deployer",
+            privateKey: `-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA...
+-----END RSA PRIVATE KEY-----`
+        }
+    }
+};
+```
+
+**运行示例：**
+
+```bash
+node examples/sync-with-ssh-tunnel.js
+```
+
+**方式 4: 本地数据库也使用SSH隧道**
+
+如果本地数据库也需要通过SSH访问，只需在 `local` 配置中添加 `ssh` 对象：
+
+```javascript
+const config = {
+    remote: {
+        host: "10.0.1.100",
+        port: "27017",
+        database: "production",
+        ssh: {
+            host: "remote-bastion.company.com",
+            username: "deployer",
+            password: "remote_ssh_pass"
+        }
+    },
+    local: {
+        host: "10.0.2.50",       // 从本地SSH服务器视角的MongoDB地址
+        port: "27017",
+        database: "staging",
+        ssh: {                    // 添加本地SSH配置
+            host: "local-bastion.company.com",
+            username: "developer",
+            password: "local_ssh_pass"
+        }
+    },
+    mode: "collection",
+    collections: ["users"]
+};
+```
+
+**双向SSH隧道示例：**
+
+```bash
+# 查看完整示例
+node examples/sync-with-dual-ssh-tunnel.js
+
+# 详细配置说明
+cat docs/LOCAL_SSH_CONFIG.md
+```
+
 #### 使用过滤条件
 
 只同步符合特定条件的数据：
@@ -196,6 +312,9 @@ npm run example:collection    # 同步单个集合
 npm run example:database      # 同步多个数据库
 npm run example:instance      # 同步整个实例
 npm run example:incremental   # 增量同步
+
+# 通过 SSH 隧道同步
+node examples/sync-with-ssh-tunnel.js
 ```
 
 ## 🧪 测试
@@ -361,6 +480,7 @@ FILTER=过滤条件（JSON 字符串）
 ## 📄 文档
 
 - [API 文档](./docs/API.md)
+- [SSH 隧道使用指南](./docs/SSH_TUNNEL.md) ⭐ 新增
 - [快速开始](./QUICKSTART.md)
 - [更新日志](./CHANGELOG.md)
 - [项目状态](./STATUS.md)
@@ -379,5 +499,5 @@ MIT License
 
 ---
 
-**版本**: v2.0.0  
-**最后更新**: 2025-01-21
+**版本**: v2.1.0  
+**最后更新**: 2025-10-28

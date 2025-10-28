@@ -102,7 +102,50 @@ npm run sync -- --db myapp --incremental --since "2025-01-20"
 npm run sync -- --db myapp --collections users --filter '{"status":"active"}'
 ```
 
-### 场景 7：不使用 .env，纯命令行
+### 场景 7：通过 SSH 隧道连接（v2.1+）
+
+适用于只能通过跳板机访问的场景：
+
+```javascript
+// sync-with-ssh.js
+const { SyncManager, Logger } = require("./src/index");
+
+const config = {
+    remote: {
+        host: "internal-mongodb.example.com",
+        port: "27017",
+        username: "admin",
+        password: "mongo-pass",
+        database: "myapp",
+        ssh: {
+            host: "jumpserver.example.com",
+            port: 22,
+            username: "deployer",
+            password: "ssh-pass"  // 或使用 privateKey
+        }
+    },
+    local: {
+        host: "localhost",
+        port: "27017",
+        database: "myapp_dev"
+    },
+    mode: "collection",
+    collections: ["users"]
+};
+
+const manager = new SyncManager(config, new Logger({ verbose: true }));
+manager.execute();
+```
+
+```bash
+# 运行
+node sync-with-ssh.js
+
+# 或使用示例
+node examples/sync-with-ssh-tunnel.js
+```
+
+### 场景 8：不使用 .env，纯命令行
 
 ```bash
 npm run sync -- \
@@ -129,6 +172,9 @@ npm run example:instance
 
 # 增量同步
 npm run example:incremental
+
+# 通过 SSH 隧道同步（v2.1+）
+node examples/sync-with-ssh-tunnel.js
 ```
 
 ## 🧪 运行测试

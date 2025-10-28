@@ -10,7 +10,7 @@ const InstanceSync = require("./instance-sync");
 const IncrementalSync = require("./incremental-sync");
 const UriBuilder = require("../utils/uri-builder");
 const Validator = require("../utils/validator");
-const SshTunnel = require("../utils/ssh-tunnel-v2");  // 使用v2版本
+const SshTunnel = require("../utils/ssh-tunnel");
 
 class SyncManager {
     constructor(config, logger) {
@@ -67,9 +67,6 @@ class SyncManager {
 
     /**
      * 连接数据库
-     * @private
-     */
-    async _connect() {
         // 处理远程连接（可能需要 SSH 隧道）
         let remoteConfig = { ...this.config.remote };
         if (this.config.remote.ssh) {
@@ -85,7 +82,7 @@ class SyncManager {
             remoteConfig.port = tunnelInfo.localPort.toString();
             this.logger.info("");
         }
-
+    async _connect() {
         // 处理本地连接（可能需要 SSH 隧道）
         let localConfig = { ...this.config.local };
         if (this.config.local.ssh) {
@@ -104,14 +101,17 @@ class SyncManager {
 
         // 连接远程数据库
         const remoteUri = UriBuilder.build(remoteConfig);
+        const remoteUri = UriBuilder.build(this.config.remote);
+        const localUri = UriBuilder.build(this.config.local);
+
         this.logger.info("正在连接远程数据库...");
         this.logger.debug(`远程 URI: ${UriBuilder.maskPassword(remoteUri)}`);
         this.remoteClient = new MongoClient(remoteUri);
+        // 连接本地数据库
+        const localUri = UriBuilder.build(localConfig);
         await this.remoteClient.connect();
         this.logger.success("远程数据库连接成功");
 
-        // 连接本地数据库
-        const localUri = UriBuilder.build(localConfig);
         this.logger.info("正在连接本地数据库...");
         this.logger.debug(`本地 URI: ${UriBuilder.maskPassword(localUri)}`);
         this.localClient = new MongoClient(localUri);
@@ -131,16 +131,6 @@ class SyncManager {
         if (this.localClient) {
             await this.localClient.close();
             this.logger.debug("本地数据库连接已关闭");
-        }
-
-        // 关闭 SSH 隧道
-        if (this.remoteTunnel) {
-            await this.remoteTunnel.close();
-            this.remoteTunnel = null;
-        }
-        if (this.localTunnel) {
-            await this.localTunnel.close();
-            this.localTunnel = null;
         }
     }
 
@@ -277,4 +267,3 @@ class SyncManager {
 }
 
 module.exports = SyncManager;
-

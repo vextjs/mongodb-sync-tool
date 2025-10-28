@@ -16,6 +16,16 @@
     authSource: "admin",          // 认证数据库（默认：admin）
     options: {                    // 连接选项（可选）
         directConnection: true    // 直连模式（v2.0+ 默认启用）
+    },
+    
+    // SSH 隧道配置（可选，v2.1+）
+    ssh: {
+        host: "jumpserver.example.com",  // SSH 主机地址
+        port: 22,                        // SSH 端口（默认 22）
+        username: "deployer",            // SSH 用户名
+        password: "ssh-password",        // SSH 密码（可选）
+        privateKey: "/path/to/key",      // SSH 私钥路径或内容（可选）
+        passphrase: "key-passphrase"     // 私钥密码（可选）
     }
 }
 ```
@@ -24,6 +34,10 @@
 - `directConnection: true` - 从 v2.0 版本开始，远程数据库默认启用直连模式
 - 直连模式适用于单节点 MongoDB，可以避免副本集相关的连接问题
 - 如果连接副本集，请设置 `directConnection: false` 或不设置 options
+- **SSH 隧道** - 从 v2.1 版本开始支持 SSH 隧道，适用于只能通过跳板机访问的场景
+  - SSH 认证支持密码认证和私钥认证两种方式
+  - `privateKey` 可以是文件路径，也可以是私钥内容字符串
+  - 使用私钥认证时，`password` 参数可省略
 
 #### 本地数据库配置 (local)
 
@@ -34,7 +48,15 @@
     username: "",                 // 用户名（可选）
     password: "",                 // 密码（可选）
     database: "mydb_dev",         // 数据库名（可选）
-    authSource: "admin"           // 认证数据库（默认：admin）
+    authSource: "admin",          // 认证数据库（默认：admin）
+    
+    // SSH 隧道配置（可选，v2.1+）
+    ssh: {                        // 配置同 remote.ssh
+        host: "jumpserver.example.com",
+        port: 22,
+        username: "deployer",
+        password: "ssh-password"
+    }
 }
 ```
 
