@@ -8,7 +8,8 @@ const { SyncManager, Logger } = require("../src/index");
 
 async function main() {
     const config = {
-        // 远程数据库（生产环境）
+
+        // sit 数据库配置
         remote: {
             host: "prod.example.com",
             port: "27017",
@@ -21,18 +22,27 @@ async function main() {
             }
         },
 
-        // 本地数据库
+        // uat 数据库配置
         local: {
-            host: "localhost",
+            host: "prod.example.com",
             port: "27017",
-            database: "myapp_dev"
+            username: "admin",
+            password: "secret",
+            database: "myapp",
+            authSource: "admin",
+            options: {
+                directConnection: true  // 直连模式，适用于单节点 MongoDB
+            }
         },
 
         // 同步模式
         mode: "collection",
 
         // 指定要同步的集合
-        collections: ["users"],
+        collections: [
+            "feature_modules","feature_modules_form","feature_modules_temp","trip_departure_cities","trip_destinations","trip_types",
+            "agent_configs","language_model_releases","system_prompts"
+        ],
 
         // 同步选项
         batchSize: 1000,
